@@ -14,7 +14,7 @@ abstract class BaseOpMode : OpMode() {
     protected lateinit var leftRearMotor: DcMotorEx
     protected lateinit var rightRearMotor: DcMotorEx
     protected lateinit var driveTrain: Array<DcMotorEx>
-
+    protected  lateinit var launcherMotors: Array<DcMotorEx>
     protected lateinit var leftLauncherMotor: DcMotorEx
     protected lateinit var rightLauncherMotor: DcMotorEx
 
@@ -25,13 +25,32 @@ abstract class BaseOpMode : OpMode() {
             rightFrontMotor = hardwareMap["rightFrontMotor"] as DcMotorEx
             leftRearMotor = hardwareMap["leftRearMotor"] as DcMotorEx
             rightRearMotor = hardwareMap["rightRearMotor"] as DcMotorEx
+
             leftLauncherMotor = hardwareMap["leftLauncherMotor"] as DcMotorEx
             rightLauncherMotor = hardwareMap["rightLauncherMotor"] as DcMotorEx
             driveTrain = arrayOf(leftFrontMotor, rightFrontMotor, leftRearMotor, rightRearMotor)
+            launcherMotors = arrayOf(rightLauncherMotor, leftLauncherMotor)
+
+            //stops and resets then set to run at the start of every op mode
+            // this is needed as otherwise the encoder values will be false
+
+            leftFrontMotor.direction = DcMotorSimple.Direction.REVERSE
+            leftRearMotor.direction = DcMotorSimple.Direction.REVERSE
+            rightFrontMotor.direction = DcMotorSimple.Direction.FORWARD
+            rightRearMotor.direction = DcMotorSimple.Direction.FORWARD
+
+
+            rightLauncherMotor.direction = DcMotorSimple.Direction.FORWARD
+            leftLauncherMotor.direction = DcMotorSimple.Direction.REVERSE
+
+
+            for( m in launcherMotors){
+                m.mode = DcMotor.RunMode.STOP_AND_RESET_ENCODER
+                m.mode = DcMotor.RunMode.RUN_USING_ENCODER
+            }
 
             driveTrain.forEachIndexed {i, m ->
-                if (i != 1) { m.direction = DcMotorSimple.Direction.REVERSE }
-                m.zeroPowerBehavior = DcMotor.ZeroPowerBehavior.BRAKE
+                m.mode = DcMotor.RunMode.RUN_WITHOUT_ENCODER
             }
 
             // Custom initialization block
@@ -48,5 +67,6 @@ abstract class BaseOpMode : OpMode() {
 
     // This function must be overridden to initialize hardware related to the derived opmode
     abstract fun initialize()
+
 
 }

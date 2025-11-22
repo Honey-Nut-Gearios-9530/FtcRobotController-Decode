@@ -29,35 +29,38 @@
 
 package org.firstinspires.ftc.robotcontroller.external.samples;
 
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.util.ElapsedTime;
-import com.qualcomm.robotcore.util.Range;
 
-/*
- * This file contains an example of an iterative (Non-Linear) "OpMode".
- * An OpMode is a 'program' that runs in either the autonomous or the teleop period of an FTC match.
- * The names of OpModes appear on the menu of the FTC Driver Station.
- * When a selection is made from the menu, the corresponding OpMode
- * class is instantiated on the Robot Controller and executed.
- *
- * This particular OpMode just executes a basic Tank Drive Teleop for a two wheeled robot
- * It includes all the skeletal structure that all iterative OpModes contain.
- *
- * Use Android Studio to Copy this Class, and Paste it into your team's code folder with a new name.
- * Remove or comment out the @Disabled line to add this OpMode to the Driver Station OpMode list
- */
 
 @TeleOp(name="Basic: Iterative OpMode", group="Iterative OpMode")
-@Disabled
-public class BasicOpMode_Iterative extends OpMode
-{
+//@Disabled
+public class BasicOpMode_Iterative extends OpMode {
     // Declare OpMode members.
+
+    //TODO use new robot class for opmode.
     private ElapsedTime runtime = new ElapsedTime();
-    private DcMotor leftDrive = null;
-    private DcMotor rightDrive = null;
+    private DcMotor frontLeftDrive = null;
+    private DcMotor backLeftDrive = null;
+    private DcMotor frontRightDrive = null;
+    private DcMotor backRightDrive = null;
+
+    private DcMotor launchRight = null;
+
+    private DcMotor launchLeft = null;
+
+    private double axialMotion;  // Note: pushing stick forward gives negative value
+    private double  lateralMotion;
+    private double yawMotion;
+
+    private double max;
+
+    // TODO make changeable by controller.
+    private double launchSpeed;
+
 
     /*
      * Code to run ONCE when the driver hits INIT
@@ -66,20 +69,47 @@ public class BasicOpMode_Iterative extends OpMode
     public void init() {
         telemetry.addData("Status", "Initialized");
 
-        // Initialize the hardware variables. Note that the strings used here as parameters
-        // to 'get' must correspond to the names assigned during the robot configuration
-        // step (using the FTC Robot Controller app on the phone).
-        leftDrive  = hardwareMap.get(DcMotor.class, "left_drive");
-        rightDrive = hardwareMap.get(DcMotor.class, "right_drive");
+        // Initialize the hardware variables. Note that the strings used here must correspond
+        // to the names assigned during the robot configuration step on the DS or RC devices.
+        frontLeftDrive = hardwareMap.get(DcMotor.class, "front_left_drive");
+        backLeftDrive = hardwareMap.get(DcMotor.class, "back_left_drive");
+        frontRightDrive = hardwareMap.get(DcMotor.class, "front_right_drive");
+        backRightDrive = hardwareMap.get(DcMotor.class, "back_right_drive");
 
-        // To drive forward, most robots need the motor on one side to be reversed, because the axles point in opposite directions.
-        // Pushing the left stick forward MUST make robot go forward. So adjust these two lines based on your first test drive.
-        // Note: The settings here assume direct drive on left and right wheels.  Gear Reduction or 90 Deg drives may require direction flips
-        leftDrive.setDirection(DcMotor.Direction.REVERSE);
-        rightDrive.setDirection(DcMotor.Direction.FORWARD);
+        launchLeft = hardwareMap.get(DcMotor.class, "left_launch");
+        launchRight = hardwareMap.get(DcMotor.class, "right_launch");
 
-        // Tell the driver that initialization is complete.
+        frontLeftDrive.setDirection(DcMotor.Direction.REVERSE);
+        backLeftDrive.setDirection(DcMotor.Direction.REVERSE);
+        frontRightDrive.setDirection(DcMotor.Direction.REVERSE);
+        backRightDrive.setDirection(DcMotor.Direction.REVERSE);
+
+        launchLeft.setDirection(DcMotorSimple.Direction.REVERSE);
+        launchRight.setDirection(DcMotorSimple.Direction.REVERSE);
+
+        frontRightDrive.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        backLeftDrive.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        frontLeftDrive.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        backRightDrive.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+
+        launchLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        launchRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        launchLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        launchRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+
+
+
+
+
+
+
+
+        // Wait for the game to start (driver presses START)
         telemetry.addData("Status", "Initialized");
+        telemetry.update();
+
+
+        runtime.reset();
     }
 
     /*
@@ -94,6 +124,7 @@ public class BasicOpMode_Iterative extends OpMode
      */
     @Override
     public void start() {
+
         runtime.reset();
     }
 
@@ -102,32 +133,76 @@ public class BasicOpMode_Iterative extends OpMode
      */
     @Override
     public void loop() {
-        // Setup a variable for each drive wheel to save power level for telemetry
-        double leftPower;
-        double rightPower;
 
-        // Choose to drive using either Tank Mode, or POV Mode
-        // Comment out the method that's not used.  The default below is POV.
 
-        // POV Mode uses left stick to go forward, and right stick to turn.
-        // - This uses basic math to combine motions and is easier to drive straight.
-        double drive = -gamepad1.left_stick_y;
-        double turn  =  gamepad1.right_stick_x;
-        leftPower    = Range.clip(drive + turn, -1.0, 1.0) ;
-        rightPower   = Range.clip(drive - turn, -1.0, 1.0) ;
 
-        // Tank Mode uses one stick to control each wheel.
-        // - This requires no math, but it is hard to drive forward slowly and keep straight.
-        // leftPower  = -gamepad1.left_stick_y ;
-        // rightPower = -gamepad1.right_stick_y ;
 
-        // Send calculated power to wheels
-        leftDrive.setPower(leftPower);
-        rightDrive.setPower(rightPower);
+        // POV Mode uses left joystick to go forward & strafe, and right joystick to rotate.
 
-        // Show the elapsed game time and wheel power.
+        // TODO get controls
+        axialMotion   = -gamepad1.left_stick_y;  // Note: pushing stick forward gives negative value
+        lateralMotion =  gamepad1.left_stick_x;
+        yawMotion     =  gamepad1.right_stick_x;
+
+
+        if(gamepad1.aWasPressed()){
+            launchSpeed += 0.25;
+        } else if (gamepad1.bWasPressed()) {
+            launchSpeed -= 0.25;
+        }
+
+        if(launchSpeed > 1){
+            launchSpeed = 1;
+        }
+        if(launchSpeed < 0){
+            launchSpeed = 0;
+        }
+
+        /*
+        if(launchSpeed == 0){
+            launchLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+            launchRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        }
+        */
+
+        // Combine the joystick requests for each axis-motion to determine each wheel's power.
+        // Set up a variable for each drive wheel to save the power level for telemetry.
+        double frontLeftPower  = axialMotion + lateralMotion + yawMotion;
+        double frontRightPower = axialMotion - lateralMotion - yawMotion;
+        double backLeftPower   = axialMotion - lateralMotion + yawMotion;
+        double backRightPower  = axialMotion + lateralMotion - yawMotion;
+
+        // Normalize the values so no wheel power exceeds 100%
+        // This ensures that the robot maintains the desired motion.
+        max = Math.max(Math.abs(frontLeftPower), Math.abs(frontRightPower));
+        max = Math.max(max, Math.abs(backLeftPower));
+        max = Math.max(max, Math.abs(backRightPower));
+
+        // power greater then 1 going to motors is bad; this stops it
+        if (max > 1.0) {
+            frontLeftPower  /= max;
+            frontRightPower /= max;
+            backLeftPower   /= max;
+            backRightPower  /= max;
+        }
+
+        frontLeftDrive.setPower(frontLeftPower);
+        frontRightDrive.setPower(frontRightPower);
+        backLeftDrive.setPower(backLeftPower);
+        backRightDrive.setPower(backRightPower);
+        launchRight.setPower(launchSpeed);
+        launchLeft.setPower(launchSpeed);
+
+        /*
         telemetry.addData("Status", "Run Time: " + runtime.toString());
-        telemetry.addData("Motors", "left (%.2f), right (%.2f)", leftPower, rightPower);
+        telemetry.addData("Front left/Right", "%4.2f, %4.2f", frontLeftPower, frontRightPower);
+        telemetry.addData("Back  left/Right", "%4.2f, %4.2f", backLeftPower, backRightPower);
+        */
+
+        telemetry.addData("left encoder value: ", launchLeft.getCurrentPosition());
+        telemetry.addData("right encoder value: ", launchRight.getCurrentPosition());
+        telemetry.addData("launchSpeed: ", Double.toString(launchSpeed));
+        telemetry.update();
     }
 
     /*
@@ -135,6 +210,8 @@ public class BasicOpMode_Iterative extends OpMode
      */
     @Override
     public void stop() {
+        telemetry.addLine("robot is stoped; everything should be groovy.");
+
     }
 
 }
