@@ -10,9 +10,9 @@ import java.lang.Thread.sleep
 class BlueCenterAutonomous : BaseAutonomous() {
     override val plan = AutoStageExecutor(
         Stage(
-            { pose.y < 3.375 },
+            { pose.y < 3.375 },// magic nubers, put units
             {
-                directionVector.x = 0.0
+                directionVector.x = 0.0 // units
                 directionVector.y = 3.375
                 turnPower = 0.0
             }
@@ -33,7 +33,7 @@ class BlueCenterAutonomous : BaseAutonomous() {
                 leftLauncherMotor.velocity = motorLaunchVelocity
                 rightLauncherMotor.velocity = motorLaunchVelocity
 
-                directionVector.x = 0.0
+                directionVector.x = 0.0 // units
                 directionVector.y = 0.0
                 turnPower = 0.0
             }

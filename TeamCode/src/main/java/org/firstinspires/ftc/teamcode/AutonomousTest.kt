@@ -27,6 +27,7 @@ class AutonomousTest : BaseOpMode() {
     var isOpModeActive = true
 
     override fun initialize() {
+        // TODO rewrite in java
         odometry = hardwareMap.get(GoBildaPinpointDriver::class.java, "goBildaPinpoint")
         odometry.setOffsets(6.0, -9.5, DistanceUnit.CM)
         odometry.setEncoderResolution(GoBildaOdometryPods.goBILDA_SWINGARM_POD)

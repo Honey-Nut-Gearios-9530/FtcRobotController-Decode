@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode
 
+import com.qualcomm.hardware.bosch.BNO055IMU
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp
 import com.qualcomm.robotcore.util.ElapsedTime
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit
@@ -21,7 +22,6 @@ class workingTeliOp : BaseOpMode() {
     private var yawMotion = 0.0
     private var launchSpeed = 0.0
     //TODO implement
-
     private var powerSetting = 0.25
 
     // in this could be faster but their is no reason to make it faster
@@ -46,9 +46,6 @@ class workingTeliOp : BaseOpMode() {
 
     override fun initialize() {
         telemetry.addData("Status", "Initialized")
-        // Initialize the hardware variables. Note that the strings used here must correspond
-        // to the names assigned during the robot configuration step on the DS or RC devices.
-        // Wait for the game to start (driver presses START)
         telemetry.update()
         runtime.reset()
 
@@ -67,12 +64,6 @@ class workingTeliOp : BaseOpMode() {
         lateralMotion = gamepad1.left_stick_x.toDouble()
         yawMotion = gamepad1.right_stick_x.toDouble()
 
-        /*
-        if(launchSpeed == 0){
-            leftLauncherMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-            rightLauncherMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        }
-        */
 
         // Combine the joystick requests for each axis-motion to determine each wheel's power.
         // Set up a variable for each drive wheel to save the power level for telemetry.
@@ -88,7 +79,6 @@ class workingTeliOp : BaseOpMode() {
         if(gamepad2.dpad_down){
             launchSpeed = nearZoneLaunchSpeed
         }
-        telemetry.addData("yaw power: ", yawMotion)
 
         val motorPowers = arrayOf(
             -gamepad1.left_stick_y + gamepad1.left_stick_x + yawMotion,
@@ -125,9 +115,6 @@ class workingTeliOp : BaseOpMode() {
         }
 
 
-
-
-
         /*
         TODO test this out with hardware people see what speeds work best.
         after you find the speeds the the driver wants put them map them to buttons.
@@ -145,8 +132,8 @@ class workingTeliOp : BaseOpMode() {
         if(launchSpeed < 0.0){
             launchSpeed = 0.0
         }
-        telemetry.addData("max speed ", maxLaunchSpeed)
-        telemetry.addData("speed ", launchSpeed)
+        //telemetry.addData("max speed ", maxLaunchSpeed)
+       // telemetry.addData("speed ", launchSpeed)
 
 
 
@@ -154,30 +141,26 @@ class workingTeliOp : BaseOpMode() {
             m.setVelocity(launchSpeed, AngleUnit.RADIANS)
         }
 
-        if(gamepad2.yWasPressed()){
-            servoLauncher.position = 0.7
-        }
+
 
         if(gamepad2.xWasPressed()){
             runtime.reset()
             while(runtime.seconds() < 1.0) {
                 servoLauncher.position = 1.0
             }
-
             servoLauncher.position = 0.7
-
-
         }
 
         leftLauncherMotor.setVelocity(launchSpeed, AngleUnit.RADIANS)
         rightLauncherMotor.setVelocity(launchSpeed, AngleUnit.RADIANS)
 
-        avgVelocity = (leftLauncherMotor.getVelocity(AngleUnit.RADIANS) + rightLauncherMotor.getVelocity(AngleUnit.RADIANS) / 2)
-
+       // avgVelocity = ((leftLauncherMotor.getVelocity(AngleUnit.RADIANS) + rightLauncherMotor.getVelocity(AngleUnit.RADIANS)) / 2)
 
         telemetry.addData("launchSpeedSet: ", launchSpeed)
-        telemetry.addData("left launch speed: ", leftLauncherMotor.velocity)
-        telemetry.addData("left launch speed: ", rightLauncherMotor.velocity)
+        telemetry.addData("left launch speed radian: ", leftLauncherMotor.getVelocity(AngleUnit.RADIANS))
+        telemetry.addData("left launch speed radian: ", rightLauncherMotor.getVelocity(AngleUnit.RADIANS))
+        telemetry.addData("left launch speed tick: ", leftLauncherMotor.velocity)
+        telemetry.addData("left launch speed tick: ", rightLauncherMotor.velocity)
         telemetry.addData("avg speed: ", avgVelocity)
         // TODO this is output as a irrational number have this be in the form of radians * PI
         // E.G 0.5π or (1/2)π both work fine
@@ -189,8 +172,6 @@ class workingTeliOp : BaseOpMode() {
     /*
      * Code to run ONCE after the driver hits STOP
      */
-    override fun stop() {
-    }
 }
 
 
