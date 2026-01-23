@@ -57,7 +57,7 @@ abstract class BaseOpMode : OpMode() {
             rightGateServo.position = 0.35
 
             baseHelper = BaseOpHelper(
-                leftGateServo, rightGateServo, leftLauncherMotor, rightLauncherMotor, servoLauncher
+                leftGateServo, rightGateServo, leftLauncherMotor, rightLauncherMotor, servoLauncher, driveTrain
             )
 
             for( m in launcherMotors){

@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.modular
 
+import com.qualcomm.robotcore.hardware.DcMotor.ZeroPowerBehavior
 import com.qualcomm.robotcore.hardware.DcMotorEx
 import com.qualcomm.robotcore.hardware.Servo
 
@@ -9,6 +10,7 @@ class BaseOpHelper(
     private val leftLauncherMotor: DcMotorEx,
     private val rightLauncherMotor: DcMotorEx,
     private val servoLauncher: Servo,
+    private val driveTrain: Array<DcMotorEx>
 ) {
     private val delay: Long = 700
     fun leftGateServoCycle(){
@@ -24,6 +26,21 @@ class BaseOpHelper(
         Thread.sleep(delay)
         rightGateServo.position = 0.35
     }
+    // set power to zero
+    // set zero power to break
+    // this will cause the robot to reist being pushed
+    fun handBreak(){
+        for (m in driveTrain){
+            m.zeroPowerBehavior = ZeroPowerBehavior.BRAKE
+            m.power = 0.0 // dose not overwrite motorPowers
+        }
+    }
+    fun releaseHandBrake() {
+        for (m in driveTrain) {
+            m.zeroPowerBehavior = ZeroPowerBehavior.FLOAT
+        }
+    }
+
 
     var launchMotorsVelocity: Double
         get() {
